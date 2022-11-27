@@ -18,7 +18,7 @@ public class MainEjercicio {
     private static IvParameterSpec ivPS;
     private static final String alg = "AES/CBC/PKCS5Padding";
     private static final String k = "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz";
-    private static final String KEY_SALT_BD = "1255a2ed998fa2d6198671eddbf1a2aa"; //Key para la BD
+    private static String key_salt_bd = Salt.getSalt(); //Key para la BD, se genera Salt para simular obtenerla desde la BD
     private static final int INTERACCIONES = 65536;
     private static final int LARGO_KEY = 256;
 
@@ -27,15 +27,15 @@ public class MainEjercicio {
         return new IvParameterSpec(iv);
     }
 
-    private static SecretKeySpec generateKey() {
-        return new SecretKeySpec(k.getBytes(StandardCharsets.UTF_8), "AES");
-    }
+//    private static SecretKeySpec generateKey() {
+//        return new SecretKeySpec(k.getBytes(StandardCharsets.UTF_8), "AES");
+//    }
 
     private static byte[] processEncryption(boolean encryption, String tBD) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException {
        // SecretKeySpec skp = generateKey();
         Cipher cipher = Cipher.getInstance(alg);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256"); //Se genera key Hmac
-        KeySpec spec = new PBEKeySpec(KEY_SALT_BD.toCharArray(), k.getBytes(StandardCharsets.UTF_8), INTERACCIONES, LARGO_KEY);
+        KeySpec spec = new PBEKeySpec(key_salt_bd.toCharArray(), k.getBytes(StandardCharsets.UTF_8), INTERACCIONES, LARGO_KEY);
         SecretKey tmp = factory.generateSecret(spec);
         SecretKeySpec skp = new SecretKeySpec(Arrays.copyOf(tmp.getEncoded(),16),"AES");
 
@@ -60,7 +60,10 @@ public class MainEjercicio {
 
         result = processEncryption(false,tBD);
         System.out.println("Decryption process: "+ new String(result, StandardCharsets.UTF_8) );
-
+        System.out.println("***********************************");
+        System.out.println("Prueba de generacion de Salt");
+        String ksalt = Salt.getSalt();
+        System.out.println("Salt generada: " + ksalt);
     }
 
 }
